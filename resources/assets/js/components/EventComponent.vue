@@ -1,7 +1,7 @@
 <template>
     <div class="mt-5">
         <div class="row">
-            <div class="col col-5">
+            <div class="col-xs-12 col col-md-5">
                 <form @submit.prevent="addEvent()" class="mb-3">
                     <div class="form-group">
                         <label for="title">Event</label>
@@ -62,7 +62,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col">
+            <div class=" col-xs-12 col-md-7">
                 <full-calendar 
                     defaultView="dayGridMonth"
                     :plugins="calendarPlugins"
