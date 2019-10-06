@@ -2,21 +2,31 @@
     <div class="mt-5">
         <div class="row">
             <div class="col-xs-12 col col-md-5">
+                
+                <!-- Form -->
                 <form @submit.prevent="addEvent()" class="mb-3">
+
+                    <!-- Input text Title -->
                     <div class="form-group">
                         <label for="title">Event</label>
-                        <input type="text" class="form-control" placeholder="Event title" id="title" v-model="event.name">
+                        <input type="text" class="form-control" placeholder="Enter Title" id="title" v-model="event.name">
                     </div>
                     <div class="row">
+
+                        <!-- Datepicker From -->
                         <div class="col form-group">
                             <label for="start">From</label>
-                            <input type="date" class="form-control" id="start" v-model="event.start">
+                            <date-picker id="start" v-model="event.start" :lang="datepicker.lang" :width="datepicker.width" :value-type="datepicker.valueType"></date-picker>
                         </div>
+
+                        <!-- Datepicker To -->
                         <div class="col form-group">
                             <label for="end">To</label>
-                            <input type="date" class="form-control" id="end" v-model="event.end">
+                            <date-picker id="end" v-model="event.end" :lang="datepicker.lang" :width="datepicker.width" :value-type="datepicker.valueType"></date-picker>
                         </div>
                     </div>
+
+                    <!-- Checkbox Days -->
                     <label for="check">Filter days</label>
                     <div class="mb-3" id="check">
                         <div class="form-check form-check-inline">
@@ -48,20 +58,35 @@
                             <label class="form-check-label" for="Sat">Sat</label>
                         </div>
                     </div>
+
+                    <!-- Submit Form -->
                     <button class="btn btn-success btn-block" type="submit">Save</button>
                 </form>
                 <hr>
+
+                <!-- Alert Error -->
                 <div v-if="errorFlag">
                     <div class="alert alert-danger" v-for="message in messages" :key="message.id">
                         {{ message }}
                     </div>
                 </div>
+
+                <!-- Alert Success -->
                 <div v-if="successFlag">
                     <div class="alert alert-success" v-for="message in messages" :key="message.id">
                         {{ message }}
                     </div>
                 </div>
+
+                <!-- Alert Warning -->
+                <div v-if="warningFlag">
+                    <div class="alert alert-warning" v-for="message in messages" :key="message.id">
+                        {{ message }}
+                    </div>
+                </div>
             </div>
+
+            <!-- Calendar -->
             <div class=" col-xs-12 col-md-7">
                 <full-calendar 
                     defaultView="dayGridMonth"
@@ -77,10 +102,12 @@
     import FullCalendar from '@fullcalendar/vue'
     import dayGridPlugin from '@fullcalendar/daygrid'
     import { diffDays, addDays } from '@fullcalendar/core';
+    import DatePicker from 'vue2-datepicker'
 
     export default {
         components: {
-            FullCalendar
+            FullCalendar,
+            DatePicker
         },
         data() {
             return {
@@ -98,37 +125,78 @@
                     friday: '',
                     saturday: '',
                 },
+                datepicker: {
+                    lang: {
+                        days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+                        months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
+                        placeholder: {
+                            date: 'Select Date',
+                            dateRange: 'Select Date Range'
+                        }
+                    },
+                    width: '100%',
+                    valueType: 'format',
+                },
                 errorFlag: false,
                 successFlag: false,
+                warningFlag: false,
                 messages: []
             }
         },
         methods: {
             addEvent() {
-                this.messages = [];
                 this.dates = [];
-                
-                fetch('api/event', {
-                    method: 'post',
-                    body: JSON.stringify(this.event),
-                    headers: {
-                        'content-type': 'application/json'
+                let vm = this.event;
+                let start = new Date(vm.start);
+                let end = new Date(vm.end);
+                if (vm.name && vm.start && vm.end && start <= end && (vm.sunday || vm.monday || vm.tuesday || vm.wednesday || vm.thursday || vm.friday || vm.saturday)) {
+                    fetch('api/event', {
+                        method: 'post',
+                        body: JSON.stringify(this.event),
+                        headers: {
+                            'content-type': 'application/json'
+                        }
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status == 'error') {
+                            this.errorFlag = true;
+                            this.successFlag = false;
+                            this.warningFlag = false,
+                            this.messages = data.messages;
+                        } else {
+                            this.errorFlag = false;
+                            this.successFlag = true;
+                            this.warningFlag = false,
+                            this.messages = data.messages;
+                            this.populateCalendar(data.data);
+                        }    
+                    })
+                    .catch(err => console.log(err));
+                } else {
+                    let errors = [];
+                    if (!this.event.name) {
+                        errors.push('Event title is required.');
                     }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status == 'error') {
-                        this.successFlag = false;
-                        this.errorFlag = true;
-                        this.messages = data.messages;
-                    } else {
-                        this.populateCalendar(data.data);
-                        this.successFlag = true;
-                        this.errorFlag = false;
-                        this.messages = data.messages;
-                    }    
-                })
-                .catch(err => console.log(err));
+                    if (!this.event.start) {
+                        errors.push('Date from is required.');
+                    }
+                    if (!this.event.end) {
+                        errors.push('Date to is required.');
+                    }
+                    if (!(vm.sunday || vm.monday || vm.tuesday || vm.wednesday || vm.thursday || vm.friday || vm.saturday )) {
+                        errors.push('Atleast one filter day is checked.');
+                    }
+                    if (!(start <= end) && start != 'Invalid Date' && end != 'Invalid Date') {
+                        errors.push('Date to is earlier than date from.');
+                    }
+
+                    this.errorFlag = true;
+                    this.successFlag = false;
+                    this.warningFlag = false,
+                    this.messages = errors;
+                }
             },
             populateCalendar(data) {
                 let dates = [];
@@ -147,7 +215,14 @@
                     }
                 }
 
-                this.dates = dates;
+                if (dates.length > 0) {
+                    this.dates = dates;
+                } else {
+                    this.errorFlag = false;
+                    this.successFlag = false;
+                    this.warningFlag = true;
+                    this.messages = ['No date affected.'];
+                }       
             }
         }
     }

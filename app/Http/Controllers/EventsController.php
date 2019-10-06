@@ -30,13 +30,13 @@ class EventsController extends Controller
             $start = Carbon::parse($request->input('start'));
             $end = Carbon::parse($request->input('end'));
             if (!$request->input('name')) {
-                $messages[] = 'Name required.';
+                $messages[] = 'Event title is required.';
             }
             if (!$request->input('start')) {
-                $messages[] = 'Date from required.';
+                $messages[] = 'Date from is required.';
             }
             if (!$request->input('end')) {
-                $messages[] = 'Date to required.';
+                $messages[] = 'Date to is required.';
             }
             if (!(
                 $request->input('sunday') or
@@ -47,7 +47,7 @@ class EventsController extends Controller
                 $request->input('friday') or
                 $request->input('saturday')
             )){
-                $messages[] = 'Atleast one filter required.';
+                $messages[] = 'Atleast one filter day is checked.';
             }
             if (!($start->lessThan($end))) {
                 $messages[] = 'Date to is earlier than date from.';
@@ -89,7 +89,6 @@ class EventsController extends Controller
 
         if ($event->save()) {
             return response()->json([
-                // 'data' => $this->generateDates($event), 
                 'data' => new EventResource($event),
                 'messages' => ['Successfully added new event!'],
                 'status' => 'success'
