@@ -18,13 +18,7 @@ class CreateEventsTable extends Migration
             $table->string('name');
             $table->date('start');
             $table->date('end');
-            $table->boolean('sunday')->default(0);
-            $table->boolean('monday')->default(0);
-            $table->boolean('tuesday')->default(0);
-            $table->boolean('wednesday')->default(0);
-            $table->boolean('thursday')->default(0);
-            $table->boolean('friday')->default(0);
-            $table->boolean('saturday')->default(0);
+            $table->integer('active_days');
             $table->timestamps();
         });
     }

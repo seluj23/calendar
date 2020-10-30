@@ -14,18 +14,25 @@ class EventResource extends Resource
      */
     public function toArray($request)
     {
+        $days = [0,0,0,0,0,0,0];
+
+        for ($i=0; $i < 7; $i++) { 
+            $base = 2**(6-$i);
+            $days[$i] = ($base & $this->active_days) == $base ? 1 : 0;
+        }
+
         return [
             'id' => $this->id,
             'title' => $this->name,
             'start' => $this->start,
             'end' => $this->end,
-            'sunday' => $this->sunday,
-            'monday' => $this->monday,
-            'tuesday' => $this->tuesday,
-            'wednesday' => $this->wednesday,
-            'thursday' => $this->thursday,
-            'friday' => $this->friday,
-            'saturday' => $this->saturday,
+            'sunday' => $days[0],
+            'monday' => $days[1],
+            'tuesday' => $days[2],
+            'wednesday' => $days[3],
+            'thursday' => $days[4],
+            'friday' => $days[5],
+            'saturday' => $days[6],
         ];
     }
 }
