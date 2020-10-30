@@ -32,7 +32,7 @@ class EventsController extends Controller
             $start = Carbon::parse($request->input('start'));
             $end = Carbon::parse($request->input('end'));
             if (!$data['name']) {
-                $messages[] = 'Event title is required.';
+                $messages[] = 'Event name is required.';
             }
             if (!$data['start']) {
                 $messages[] = 'Date from is required.';

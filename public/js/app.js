@@ -53912,7 +53912,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             } else {
                 var errors = [];
                 if (!this.event.name) {
-                    errors.push('Event title is required.');
+                    errors.push('Event name is required.');
                 }
                 if (!this.event.start) {
                     errors.push('Date from is required.');
@@ -56136,11 +56136,7 @@ var render = function() {
                   }
                 ],
                 staticClass: "form-control",
-                attrs: {
-                  type: "text",
-                  placeholder: "Enter Title",
-                  id: "title"
-                },
+                attrs: { type: "text", placeholder: "Enter Name", id: "title" },
                 domProps: { value: _vm.event.name },
                 on: {
                   input: function($event) {
