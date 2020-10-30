@@ -9,7 +9,7 @@
                     <!-- Input text Title -->
                     <div class="form-group">
                         <label for="title">Event</label>
-                        <input type="text" class="form-control" placeholder="Enter Title" id="title" v-model="event.name">
+                        <input type="text" class="form-control" placeholder="Enter Name" id="title" v-model="event.name">
                     </div>
                     <div class="row">
 
@@ -177,7 +177,7 @@
                 } else {
                     let errors = [];
                     if (!this.event.name) {
-                        errors.push('Event title is required.');
+                        errors.push('Event name is required.');
                     }
                     if (!this.event.start) {
                         errors.push('Date from is required.');
